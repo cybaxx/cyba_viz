@@ -1,0 +1,15 @@
+# cyba_viz render stack
+moderngl>=5.10
+moderngl-window>=2.4
+glfw>=2.7
+pyglet>=2.0
+pillow>=10.0
+numpy>=1.26
+
+# control / sync
+python-osc>=1.8      # OSC input (TouchDesigner, Resolume, TouchOSC, ...)
+sounddevice>=0.4     # mic kick-sync
+
+# optional
+# mido>=1.3          # MIDI input (Pioneer / any controller)
+# python-rtmidi      # MIDI backend for mido
