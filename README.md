@@ -1,7 +1,7 @@
 # cyba_viz
 
-A GPU-driven, audio-reactive visual instrument that turns a Tumblr media archive
-into hypnotic, concert-style visuals. Built on ModernGL/GLSL with a
+A GPU-driven, audio-reactive visual instrument that turns a folder of images and
+GIFs into hypnotic, concert-style visuals. Built on ModernGL/GLSL with a
 TouchDesigner-style feedback pipeline.
 
 Feed it thousands of images and GIFs; it spawns them in a self-warping feedback
@@ -54,21 +54,22 @@ Optional extras:
 
 ## Prepare assets
 
-`cyba_viz` renders from a preprocessed asset library, not the raw scrape. Point
-it at a media folder (e.g. the output of the separate **tumblr_scraper** repo):
+`cyba_viz` renders from a preprocessed asset library. Point it at any folder of
+images and GIFs — a Tumblr scrape, a photo dump, a downloads folder, anything.
+(`<name>` below is just a label for the media set.)
 
 ```bash
-# finds archives/<blog>/media in the cwd, a sibling tumblr_photos/ repo,
-# or $TUMBLR_ARCHIVE_DIR
-.venv/bin/python prep_assets.py auroraangelic
+# point at any folder of images/gifs
+.venv/bin/python prep_assets.py mymedia --media-root /path/to/media
 
-# or point at any folder of images/gifs
-.venv/bin/python prep_assets.py auroraangelic --media-root /path/to/media
+# if --media-root is omitted it looks for archives/<name>/media in the cwd,
+# a sibling scraper checkout, or $TUMBLR_ARCHIVE_DIR
+.venv/bin/python prep_assets.py mymedia
 ```
 
 Stills are downscaled so their longest edge is capped at **2560 px** (never
 upscaled below native); GIFs have up to **64** frames extracted at up to
-**1280 px**. Output goes to `assets/<blog>/` (git-ignored).
+**1280 px**. Output goes to `assets/<name>/` (git-ignored).
 
 Useful flags: `--max-edge`, `--gif-edge`, `--max-gif-frames`, `--quality`,
 `--workers`, `--force`.
@@ -77,14 +78,14 @@ Useful flags: `--max-edge`, `--gif-edge`, `--max-gif-frames`, `--quality`,
 
 ```bash
 # windowed
-.venv/bin/python run.py auroraangelic
+.venv/bin/python run.py mymedia
 
 # fullscreen, spiral tunnel, rave preset, mic sync
-.venv/bin/python run.py auroraangelic --spiral --fullscreen --preset rave \
+.venv/bin/python run.py mymedia --spiral --fullscreen --preset rave \
     --audio --audio-device 1
 
 # headless smoke test (writes a PNG, no window)
-.venv/bin/python run.py auroraangelic --headless --frames 240 --out frame.png
+.venv/bin/python run.py mymedia --headless --frames 240 --out frame.png
 ```
 
 ### Keyboard
@@ -144,7 +145,7 @@ python osc_send.py --host 192.168.1.20 --port 9001 /cycle 1
 
 ```bash
 .venv/bin/pip install mido python-rtmidi
-.venv/bin/python run.py auroraangelic --midi
+.venv/bin/python run.py mymedia --midi
 ```
 
 CC → parameter mappings live in `pyviz/control.py` (`cc_map`) — edit for your
@@ -158,9 +159,9 @@ FFT band energy + spectral-flux onset detection, then drives both the tempo and
 the beat-synced bounce directly from the music.
 
 ```bash
-.venv/bin/python run.py auroraangelic --list-audio          # list inputs
-.venv/bin/python run.py auroraangelic --audio --audio-device 1
-.venv/bin/python run.py auroraangelic --audio --audio-device 1 --audio-band 40 120
+.venv/bin/python run.py mymedia --list-audio          # list inputs
+.venv/bin/python run.py mymedia --audio --audio-device 1
+.venv/bin/python run.py mymedia --audio --audio-device 1 --audio-band 40 120
 ```
 
 Tip: install [BlackHole](https://existential.audio/blackhole/) and route your DJ
@@ -248,7 +249,7 @@ ping-pong float16 framebuffers, so effects compound frame to frame.
 
 - **Fullscreen fills only a corner** — Retina scaling; handled via
   `get_framebuffer_size()`. On very large displays add `--render-scale 0.5`.
-- **No such file: assets/<blog>/manifest.json** — run `prep_assets.py` first, or
+- **No such file: assets/<name>/manifest.json** — run `prep_assets.py` first, or
   pass `--assets`.
 - **Mic reads silence** — grant Microphone permission; try a different
   `--audio-device`; raise `audio_gain`.
